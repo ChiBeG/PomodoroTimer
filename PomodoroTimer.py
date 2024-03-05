@@ -13,15 +13,27 @@ class PomodoroTimer:
         self.headerLabel = ttk.Label(self.app, text = "Pomodoro Timer")
         self.headerLabel.pack()
 
+        self.minutesRest = tk.Variable(value=5)
+        self.minutesFocus = tk.Variable(value=25)
+        self.seconds = tk.Variable(value=0)
+        
+        
+        self.entryFrame = ttk.Frame(self.app)
+        self.entryFrame.pack()
+        
+        self.focusInput = ttk.Entry(self.entryFrame, textvariable = self.minutesFocus)
+        self.restInput = ttk.Entry(self.entryFrame, textvariable = self.minutesRest)
+        self.focusInput.grid(column=0, row=0)
+        self.restInput.grid(column=1, row=0)
+
 
         self.timerFrame = ttk.Frame(self.app)
         self.timerFrame.pack(expand = True)
 
 
-        self.minutes = ttk.StringVar('25')
-        self.seconds = ttk.StringVar('0')
+        
 
-        self.minutesLabel = ttk.Label(self.timerFrame, textvariable = self.minutes)
+        self.minutesLabel = ttk.Label(self.timerFrame, textvariable = self.minutesFocus)
         self.textMinutesLabel =  ttk.Label(self.timerFrame, text="minutos")
         self.secondsLabel = ttk.Label(self.timerFrame, textvariable = self.seconds)
         self.textSecondsLabel =  ttk.Label(self.timerFrame, text="segundos")
@@ -36,8 +48,8 @@ class PomodoroTimer:
 
         self.startButton = ttk.Button(self.buttonsFrame, text = "Iniciar", bootstyle = "sucess-outline", command=self.start_thread)
         self.startButton.grid(column=0, row=0)
-        self.startButton = ttk.Button(self.buttonsFrame, text = "Parar", bootstyle = "sucess-outline", command=self.stop)
-        self.startButton.grid(column=1, row=0)
+        self.stopButton = ttk.Button(self.buttonsFrame, text = "Parar", bootstyle = "sucess-outline", command=self.stop)
+        self.stopButton.grid(column=1, row=0)
 
         self.buttonsFrame.pack()
 
@@ -50,20 +62,20 @@ class PomodoroTimer:
         
     def start(self):
         self.stop_loop = False
-        fullSeconds = int(self.minutes.get())*60 + int(self.seconds.get())
+        fullSeconds = int(self.minutesFocus.get())*60 + int(self.seconds.get())
 
         while fullSeconds > 0 and not self.stop_loop:
             fullSeconds -= 1
 
             curr_minutes, curr_seconds = divmod(fullSeconds, 60)
-            self.minutes.set(curr_minutes)
+            self.minutesFocus.set(curr_minutes)
             self.seconds.set(curr_seconds)
             self.app.update()
             time.sleep(1)
 
     def stop(self):
         self.stop_loop = True
-        self.minutes.set(25)
+        self.minutesFocus.set(25)
         self.seconds.set(0)
 
 
