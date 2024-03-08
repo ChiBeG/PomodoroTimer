@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import PhotoImage
 import ttkbootstrap as ttk
 import threading
 import time
@@ -11,6 +12,7 @@ class PomodoroTimer:
         self.app = tk.Tk()
         self.app.title("Pomodoro Timer")
         self.app.geometry("700x300")
+        self.app.tk.call('wm', 'iconphoto', self.app._w, PhotoImage(file = "resources/timer-icon.png"))
         self.style = ttk.Style(theme = "simplex")
 
         self.focusTime = 25
