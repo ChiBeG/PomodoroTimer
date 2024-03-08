@@ -75,11 +75,6 @@ class PomodoroTimer:
 
         if selectedTab == 0:
             fullSeconds = 60 * self.focusTime
-            
-            
-            fullSeconds = 5
-            
-            
             while fullSeconds > 0 and not self.stopped:
                 minutes, seconds = divmod(fullSeconds, 60)
                 self.focusLabel.config(text=f"{minutes:02d}:{seconds:02d}")
@@ -98,10 +93,6 @@ class PomodoroTimer:
         
         elif selectedTab == 1:
             fullSeconds = 60 * self.restTime
-
-            fullSeconds = 5
-
-
             while fullSeconds > 0 and not self.stopped:
                 minutes, seconds = divmod(fullSeconds, 60)
                 self.restLabel.config(text=f"{minutes:02d}:{seconds:02d}")
@@ -115,9 +106,6 @@ class PomodoroTimer:
 
         elif selectedTab == 2:
             fullSeconds = 60 * self.longrestTime
-
-            fullSeconds = 10
-
             while fullSeconds > 0 and not self.stopped:
                 minutes, seconds = divmod(fullSeconds, 60)
                 self.longrestLabel.config(text=f"{minutes:02d}:{seconds:02d}")
