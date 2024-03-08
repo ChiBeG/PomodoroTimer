@@ -49,23 +49,22 @@ class PomodoroTimer:
         self.stopButton.grid(column=1, row=0)
         self.skipButton = ttk.Button(self.buttonsFrame, text = "Pular", bootstyle = "success-outline", command=self.skip)
         self.skipButton.grid(column=2, row=0)
+        self.settingsButton = ttk.Button(self.buttonsFrame, text = "Configurar", bootstyle = "success-outline", command = self.openSettings)
+        self.settingsButton.grid(column=3, row=0)
 
         self.buttonsFrame.pack(pady=10)
 
         
         self.skipped = False
         self.stopped = False
-        self.running = False
 
         
         
         self.app.mainloop()
 
     def start_thread(self):
-        if not self.running:
-            thread = threading.Thread(target=self.start())
-            thread.start()
-            self.running = True
+        thread = threading.Thread(target=self.start())
+        thread.start()
         
     def start(self):
         self.stopped = False
@@ -138,8 +137,6 @@ class PomodoroTimer:
         self.restLabel.config(text=f"{self.restTime:02d}:00")
         self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
         self.cyclesCounter.config(text=f"Ciclos: {self.cycles}")
-        self.running = False
-
 
     def skip(self):
         selectedTab = self.tabs.index(self.tabs.select())
@@ -152,9 +149,46 @@ class PomodoroTimer:
 
         self.stopped = True
         self.skipped = True
- 
 
+    def openSettings(self):
+        settings = tk.Toplevel()
+        settings.title("Configurações")
+        settings.geometry("200x300")
 
+        inputFrame = ttk.Frame(settings)
+        inputFrame.pack()
 
+        
+        new_focusTime = self.focusTime
+        new_restTime = self.restTime
+        new_longrestTime = self.longrestTime
+        
+        focusLabel = ttk.Label(inputFrame, text = "Tempo de foco")
+        focusInput = ttk.Entry(inputFrame, textvariable = new_focusTime)
+        restLabel = ttk.Label(inputFrame, text = "Tempo de descanso")
+        restInput = ttk.Entry(inputFrame, textvariable = new_restTime)
+        longrestLabel = ttk.Label(inputFrame, text = "Descanso longo")
+        longrestInput = ttk.Entry(inputFrame, textvariable = new_longrestTime)
+
+        focusLabel.grid(column=0, row=0)
+        focusInput.grid(column=0, row=1)
+        restLabel.grid(column=1, row=0)
+        restInput.grid(column=1, row=1)
+        longrestLabel.grid(column=2, row=0)
+        longrestInput.grid(column=2, row=1)
+
+        saveButton = ttk.Button(settings, text = "Salvar", bootstyle = "success-outline", command = self.changeTimes(int(new_focusTime), int(new_restTime), int(new_longrestTime)))
+        saveButton.pack()
+
+    
+    def changeTimes (self, new_focusTime, new_restTime, new_longrestTime):
+        self.focusTime = new_focusTime
+        self.restTime = new_restTime
+        self.longrestTime = new_longrestTime
+        self.focusLabel.config(text=f"{self.focusTime:02d}:00")
+        self.restLabel.config(text=f"{self.restTime:02d}:00")
+        self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
+        self.app.update()
+    
 
 PomodoroTimer()
