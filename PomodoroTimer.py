@@ -2,85 +2,158 @@ import tkinter as tk
 import ttkbootstrap as ttk
 import threading
 import time
+from playsound import playsound
+
 
 class PomodoroTimer:
     def __init__(self):
+
         self.app = tk.Tk()
         self.app.title("Pomodoro Timer")
-        self.app.geometry("500x500")
+        self.app.geometry("700x300")
         self.style = ttk.Style(theme = "simplex")
 
-        self.headerLabel = ttk.Label(self.app, text = "Pomodoro Timer")
-        self.headerLabel.pack()
-
-        self.minutesRest = tk.Variable(value=5)
-        self.minutesFocus = tk.Variable(value=25)
-        self.seconds = tk.Variable(value=0)
+        self.focusTime = 25
+        self.restTime = 5
+        self.longrestTime = 15        
         
+        self.tabs = ttk.Notebook(self.app)
+        self.tabs.pack(fill="both", expand=True)
         
-        self.entryFrame = ttk.Frame(self.app)
-        self.entryFrame.pack()
+        self.focusTab = ttk.Frame(self.tabs)
+        self.restTab = ttk.Frame(self.tabs)
+        self.longrestTab = ttk.Frame(self.tabs)
+
+        self.tabs.add(self.focusTab, text="Foco")
+        self.tabs.add(self.restTab, text="Descanso")
+        self.tabs.add(self.longrestTab, text="Descanso Longo")
+
+        self.focusLabel = ttk.Label(self.focusTab, text=f"{self.focusTime:02d}:00", font=("Open Sans", 50))
+        self.focusLabel.pack(expand=True)        
         
-        self.focusInput = ttk.Entry(self.entryFrame, textvariable = self.minutesFocus)
-        self.restInput = ttk.Entry(self.entryFrame, textvariable = self.minutesRest)
-        self.focusInput.grid(column=0, row=0)
-        self.restInput.grid(column=1, row=0)
+        self.restLabel = ttk.Label(self.restTab, text=f"{self.restTime:02d}:00", font=("Open Sans", 50))
+        self.restLabel.pack(expand=True)
 
+        self.longrestLabel = ttk.Label(self.longrestTab, text=f"{self.longrestTime:02d}:00", font=("Open Sans", 50))
+        self.longrestLabel.pack(expand=True)
 
-        self.timerFrame = ttk.Frame(self.app)
-        self.timerFrame.pack(expand = True)
-
-
-        
-
-        self.minutesLabel = ttk.Label(self.timerFrame, textvariable = self.minutesFocus)
-        self.textMinutesLabel =  ttk.Label(self.timerFrame, text="minutos")
-        self.secondsLabel = ttk.Label(self.timerFrame, textvariable = self.seconds)
-        self.textSecondsLabel =  ttk.Label(self.timerFrame, text="segundos")
-
-        self.minutesLabel.grid(column = 0, row = 0)
-        self.textMinutesLabel.grid(column = 1, row = 0)
-        self.secondsLabel.grid(column = 2, row = 0)
-        self.textSecondsLabel.grid(column = 3, row = 0)
-
+        self.cycles = 0
+        self.cyclesCounter = ttk.Label(self.app, text=f"Ciclos: {self.cycles}")
+        self.cyclesCounter.pack(pady=10)
         
         self.buttonsFrame = ttk.Frame(self.app)
 
-        self.startButton = ttk.Button(self.buttonsFrame, text = "Iniciar", bootstyle = "sucess-outline", command=self.start_thread)
+        self.startButton = ttk.Button(self.buttonsFrame, text = "Iniciar", bootstyle = "success-outline", command=self.start_thread)
         self.startButton.grid(column=0, row=0)
-        self.stopButton = ttk.Button(self.buttonsFrame, text = "Parar", bootstyle = "sucess-outline", command=self.stop)
+        self.stopButton = ttk.Button(self.buttonsFrame, text = "Parar", bootstyle = "success-outline", command=self.stop)
         self.stopButton.grid(column=1, row=0)
+        self.skipButton = ttk.Button(self.buttonsFrame, text = "Pular", bootstyle = "success-outline", command=self.skip)
+        self.skipButton.grid(column=2, row=0)
 
-        self.buttonsFrame.pack()
+        self.buttonsFrame.pack(pady=10)
 
-        self.stop_loop = False
+        
+        self.skipped = False
+        self.stopped = False
+        self.running = False
+
+        
+        
         self.app.mainloop()
 
     def start_thread(self):
-        thread = threading.Thread(target=self.start)
-        thread.start()
+        if not self.running:
+            thread = threading.Thread(target=self.start())
+            thread.start()
+            self.running = True
         
     def start(self):
-        self.stop_loop = False
-        fullSeconds = int(self.minutesFocus.get())*60 + int(self.seconds.get())
+        self.stopped = False
+        self.skipped = False
+        selectedTab = self.tabs.index(self.tabs.select())
 
-        while fullSeconds > 0 and not self.stop_loop:
-            fullSeconds -= 1
+        if selectedTab == 0:
+            fullSeconds = 60 * self.focusTime
+            
+            
+            fullSeconds = 5
+            
+            
+            while fullSeconds > 0 and not self.stopped:
+                minutes, seconds = divmod(fullSeconds, 60)
+                self.focusLabel.config(text=f"{minutes:02d}:{seconds:02d}")
+                self.app.update()
+                time.sleep(1)
+                fullSeconds -= 1
+            playsound("resources/alarm.wav")
+            if not self.stopped or self.skipped:
+                self.cycles += 1
+                self.cyclesCounter.config(text=f"Ciclos: {self.cycles}")
+                if self.cycles % 4 == 0:
+                    self.tabs.select(2)
+                else:
+                    self.tabs.select(1)
+                self.focusLabel.config(text=f"{self.focusTime:02d}:00")
+        
+        elif selectedTab == 1:
+            fullSeconds = 60 * self.restTime
 
-            curr_minutes, curr_seconds = divmod(fullSeconds, 60)
-            self.minutesFocus.set(curr_minutes)
-            self.seconds.set(curr_seconds)
-            self.app.update()
-            time.sleep(1)
+            fullSeconds = 5
+
+
+            while fullSeconds > 0 and not self.stopped:
+                minutes, seconds = divmod(fullSeconds, 60)
+                self.restLabel.config(text=f"{minutes:02d}:{seconds:02d}")
+                self.app.update()
+                time.sleep(1)
+                fullSeconds -= 1
+            playsound("resources/alarm.wav")
+            if not self.stopped or self.skipped:
+                self.tabs.select(0)
+            self.restLabel.config(text=f"{self.restTime:02d}:00")
+
+        elif selectedTab == 2:
+            fullSeconds = 60 * self.longrestTime
+
+            fullSeconds = 10
+
+            while fullSeconds > 0 and not self.stopped:
+                minutes, seconds = divmod(fullSeconds, 60)
+                self.longrestLabel.config(text=f"{minutes:02d}:{seconds:02d}")
+                self.app.update()
+                time.sleep(1)
+                fullSeconds -= 1
+            playsound("resources/alarm.wav")
+            if not self.stopped or self.skipped:
+                self.tabs.select(0)
+            self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
+
+
 
     def stop(self):
-        self.stop_loop = True
-        self.minutesFocus.set(25)
-        self.seconds.set(0)
+        self.stopped = True
+        self.skipped = False
+        self.cycles = 0
+        self.focusLabel.config(text=f"{self.focusTime:02d}:00")
+        self.restLabel.config(text=f"{self.restTime:02d}:00")
+        self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
+        self.cyclesCounter.config(text=f"Ciclos: {self.cycles}")
+        self.running = False
 
 
+    def skip(self):
+        selectedTab = self.tabs.index(self.tabs.select())
+        if selectedTab == 0:
+            self.focusLabel.config(text=f"{self.focusTime:02d}:00")
+        elif selectedTab == 1:
+            self.restLabel.config(text=f"{self.restTime:02d}:00")
+        elif selectedTab == 2:
+            self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
 
-        
+        self.stopped = True
+        self.skipped = True
+ 
+
 
 
 
