@@ -4,6 +4,7 @@ import ttkbootstrap as ttk
 import threading
 import time
 from playsound import playsound
+import json
 
 
 class PomodoroTimer:
@@ -15,9 +16,21 @@ class PomodoroTimer:
         self.app.tk.call('wm', 'iconphoto', self.app._w, PhotoImage(file = "resources/timer-icon.png"))
         self.style = ttk.Style(theme = "cyborg")
 
-        self.focusTime = 25
-        self.restTime = 5
-        self.longrestTime = 15        
+        try:
+            with open("settings.json", "r") as openfile:
+                jsonObject = json.load(openfile)
+                self.focusTime = jsonObject["focusTime"]
+                self.restTime = jsonObject["restTime"]
+                self.longrestTime = jsonObject["longrestTime"]
+    
+        except FileNotFoundError:
+                self.focusTime = 25
+                self.restTime = 5
+                self.longrestTime = 15
+                
+
+
+              
         
         self.tabs = ttk.Notebook(self.app, bootstyle = "success")
         self.tabs.pack(fill="both", expand=True)
@@ -181,13 +194,18 @@ class PomodoroTimer:
         self.focusTime = new_focusTime
         self.restTime = new_restTime
         self.longrestTime = new_longrestTime
+        dictionary = {
+            "focusTime": self.focusTime,
+            "restTime": self.restTime,
+            "longrestTime": self.longrestTime
+        }
+        jsonObject = json.dumps(dictionary, indent=3)
+        with open ("settings.json", "w+") as outfile: 
+            outfile.write(jsonObject)
         self.focusLabel.config(text=f"{self.focusTime:02d}:00")
         self.restLabel.config(text=f"{self.restTime:02d}:00")
         self.longrestLabel.config(text=f"{self.longrestTime:02d}:00")
         self.app.update()
-        print(self.focusTime)
-        print(self.restTime)
-        print(self.longrestTime)
     
 
 PomodoroTimer()
