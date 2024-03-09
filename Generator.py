@@ -2,7 +2,7 @@ from openai import OpenAI
 import time
 
 client = OpenAI(
-    api_key = "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"
+    api_key = ""
 )
 
 chat_response = client.chat.completions.create(
