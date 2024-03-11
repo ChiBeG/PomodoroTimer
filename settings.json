@@ -1,5 +1,5 @@
 {
-   "focusTime": 50,
-   "restTime": 10,
-   "longrestTime": 25
+   "focusTime": 25,
+   "restTime": 5,
+   "longrestTime": 10
 }

@@ -28,9 +28,6 @@ class PomodoroTimer:
                 self.restTime = 5
                 self.longrestTime = 15
                 
-
-
-              
         
         self.tabs = ttk.Notebook(self.app, bootstyle = "success")
         self.tabs.pack(fill="both", expand=True)
@@ -85,6 +82,7 @@ class PomodoroTimer:
         self.stopped = False
         self.skipped = False
         selectedTab = self.tabs.index(self.tabs.select())
+
 
         if selectedTab == 0:
             fullSeconds = 60 * self.focusTime
